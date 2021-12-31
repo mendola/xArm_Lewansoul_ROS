@@ -49,7 +49,6 @@ class XArm():
         # print a description of the devices found
         for dev in devices:
             print(dev.description())
-        import pdb; pdb.set_trace()
         self.dev = devices[0]
 
         # open a device
