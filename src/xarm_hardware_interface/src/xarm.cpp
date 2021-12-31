@@ -49,20 +49,21 @@ namespace xarm
 		ROS_INFO("Device opened \n");
 		hid_free_enumeration(devs);
 
-		//Dictionary of joint_names to joint_id
-		joint_name_map.insert(std::make_pair("xarm_2_joint" , 2));
-		joint_name_map.insert(std::make_pair("xarm_3_joint" , 3));
-  		joint_name_map.insert(std::make_pair("xarm_4_joint" , 4));
-		joint_name_map.insert(std::make_pair("xarm_5_joint" , 5));
-		joint_name_map.insert(std::make_pair("xarm_6_joint" , 6));  
+		// Dictionary of joint_names to joint_id.
+		// These are mapped "incorrectly" because I assembled my xArm incorrectly.
+		joint_name_map.insert(std::make_pair("xarm_2_joint" , 6));
+		joint_name_map.insert(std::make_pair("xarm_3_joint" , 5));
+  		joint_name_map.insert(std::make_pair("xarm_4_joint" , 3));
+		joint_name_map.insert(std::make_pair("xarm_5_joint" , 4));
+		joint_name_map.insert(std::make_pair("xarm_6_joint" , 2));  
 		
 		
 		matrix_unit_transform["xarm_2_joint"][0][0]=200;
 		matrix_unit_transform["xarm_2_joint"][0][1]=980;
 		matrix_unit_transform["xarm_3_joint"][0][0]=140;
 		matrix_unit_transform["xarm_3_joint"][0][1]=880;
-		matrix_unit_transform["xarm_4_joint"][0][0]=870;
-		matrix_unit_transform["xarm_4_joint"][0][1]=130;
+		matrix_unit_transform["xarm_4_joint"][0][0]=130;
+		matrix_unit_transform["xarm_4_joint"][0][1]=870;
 		matrix_unit_transform["xarm_5_joint"][0][0]=140;
 		matrix_unit_transform["xarm_5_joint"][0][1]=880;
 		matrix_unit_transform["xarm_6_joint"][0][0]=90;

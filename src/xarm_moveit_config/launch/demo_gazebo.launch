@@ -16,7 +16,7 @@
   It also provides a GUI to move the simulated robot around "manually".
   This corresponds to moving around the real robot without the use of MoveIt.
   -->
-  <arg name="use_gui" default="false" />
+  <!-- <arg name="use_gui" default="false" /> -->
 
   <!-- Gazebo specific options -->
   <arg name="gazebo_gui" default="true"/>
@@ -40,8 +40,8 @@
   
 
   <!-- We do not have a robot connected, so publish fake joint states -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-    <param name="use_gui" value="$(arg use_gui)"/>
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui">
+    <!-- <param name="use_gui" value="$(arg use_gui)"/> -->
     <rosparam param="source_list">[/joint_states]</rosparam>
   </node>
 
