@@ -1,16 +1,30 @@
 <launch>
+    <!-- Define a machine for the Raspberry Pi 4 which will run the actuator drivers and controllers.
+    The env-loader loads the devel/setup.bash file and ROS setup file.
+    The Raspberry Pi is setup with a static IP address and the hostname 'rpi4' is associated with that
+    static IP in the /etc/hosts file on this machine.
+    The workstation also has a static IP, and on the RPI, the /etc/hosts file has a mapping from the static IP of the workstation to the workstation's
+    hostname.
+    -->
+    <machine
+            name="rpi4"
+            address="192.168.0.123"
+            env-loader="~/xArm_Lewansoul_ROS/rpi4_env.sh"
+            default="never"
+            user="amendola"
+    />
     <rosparam file="$(find xarm_hardware_interface)/config/hardware.yaml" command="load"/>
     <rosparam file="$(find xarm_hardware_interface)/config/controllers.yaml" command="load"/>
     <rosparam file="$(find xarm_hardware_interface)/config/joint_limits.yaml" command="load"/>
-    <node name="xarm_hardware_interface" pkg="xarm_hardware_interface" type="xarm_hardware_interface_node" output="screen"/>
-    
+
+    <node machine="rpi4" name="xarm_hardware_interface" pkg="xarm_hardware_interface" type="xarm_hardware_interface_node" output="screen"/>
     
     <rosparam file="$(find xarm_launch)/config/xarm_trajectory_controller.yaml" command="load"/>
     <arg name="initial_z" default="0.1"/>
     <arg name="robot_description" default="'$(find xarm_description)/urdf/xarm_world.urdf.xacro'"/>
     <param name="robot_description" command="xacro $(arg robot_description) initial_z:=$(arg initial_z)"/>
    
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+    <node machine="rpi4" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
         args="
             /xarm/controller/state
             xarm_controller

@@ -60,6 +60,7 @@ namespace xarm_hardware_interface
         registerInterface(&joint_state_interface_);
         registerInterface(&position_joint_interface_);
         registerInterface(&positionJointSoftLimitsInterface);
+        read();
     }
 
     void xarmHardwareInterface::update(const ros::TimerEvent& e) {
