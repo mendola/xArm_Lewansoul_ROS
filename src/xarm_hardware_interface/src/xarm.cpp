@@ -56,7 +56,6 @@ namespace xarm
   		joint_name_map.insert(std::make_pair("xarm_4_joint" , 3));
 		joint_name_map.insert(std::make_pair("xarm_5_joint" , 4));
 		joint_name_map.insert(std::make_pair("xarm_6_joint" , 2));  
-		joint_name_map.insert(std::make_pair("xarm_1_joint" , 1));  
 		
 		
 		matrix_unit_transform["xarm_2_joint"][0][0]=200;
@@ -69,8 +68,6 @@ namespace xarm
 		matrix_unit_transform["xarm_5_joint"][0][1]=880;
 		matrix_unit_transform["xarm_6_joint"][0][0]=90;
 		matrix_unit_transform["xarm_6_joint"][0][1]=845;
-		matrix_unit_transform["xarm_1_joint"][0][0]=300;
-		matrix_unit_transform["xarm_1_joint"][0][1]=700;
 
 		// First column values for -pi/2 and 2nd column pi/2
 		matrix_unit_rad[0][0] = 100;    //Gripper opened
