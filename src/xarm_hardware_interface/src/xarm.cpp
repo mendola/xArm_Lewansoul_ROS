@@ -195,7 +195,8 @@ namespace xarm
 				if (joint_id != id) {
 					printf("ERROR: unexpected joint id. Expected %d got %d",joint_id, id);
 				}
-				printf("servo %d in joint_position %d | %f \n", id, unit, joint_positions[i]);
+
+				ROS_INFO("servo %d in joint_position %d | %f \n", id, unit, joint_positions[i]);
 			}
 
 		}
