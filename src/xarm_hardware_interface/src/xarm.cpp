@@ -57,31 +57,46 @@ namespace xarm
 		joint_name_map.insert(std::make_pair("xarm_5_joint" , 4));
 		joint_name_map.insert(std::make_pair("xarm_6_joint" , 2));  
 		
-		
-		matrix_unit_transform["xarm_2_joint"][0][0]=200;
-		matrix_unit_transform["xarm_2_joint"][0][1]=980;
-		matrix_unit_transform["xarm_3_joint"][0][0]=140;
-		matrix_unit_transform["xarm_3_joint"][0][1]=880;
-		matrix_unit_transform["xarm_4_joint"][0][0]=130;
-		matrix_unit_transform["xarm_4_joint"][0][1]=870;
-		matrix_unit_transform["xarm_5_joint"][0][0]=140;
-		matrix_unit_transform["xarm_5_joint"][0][1]=880;
-		matrix_unit_transform["xarm_6_joint"][0][0]=90;
-		matrix_unit_transform["xarm_6_joint"][0][1]=845;
+		// 0.24 degrees per tick, some motors installed backwards.
+		rad_per_tick_map_["xarm_2_joint"] = 0.24 * (PI / 180.0);
+		rad_per_tick_map_["xarm_3_joint"] = 0.24 * (PI / 180.0);
+		rad_per_tick_map_["xarm_4_joint"] = 0.24 * (PI / 180.0);
+		rad_per_tick_map_["xarm_5_joint"] = 0.24 * (PI / 180.0);
+		rad_per_tick_map_["xarm_6_joint"] = 0.24 * (PI / 180.0);
 
-		// First column values for -pi/2 and 2nd column pi/2
-		matrix_unit_rad[0][0] = 100;    //Gripper opened
-		matrix_unit_rad[0][1] = 800;    //Gripper closed
-		matrix_unit_rad[1][0] = 200; 	/*  Joint 2 */
-		matrix_unit_rad[1][1] = 980;  
-   		matrix_unit_rad[2][0] = 140;	/*  Joint 3*/
-		matrix_unit_rad[2][1] = 880;   
-   		matrix_unit_rad[3][0] = 130;	/*  Joint 4 */
-		matrix_unit_rad[3][1] = 870;   
-		matrix_unit_rad[4][0] = 140;	/*  Joint 5 */
-		matrix_unit_rad[4][1] = 880;    
-		matrix_unit_rad[5][0] = 90; 	/*  Joint 6 */
-		matrix_unit_rad[5][1] = 845;    
+		// Should be somewhere around 500 but varies.
+		home_position_tick_map_["xarm_2_joint"] = 500;
+		home_position_tick_map_["xarm_3_joint"] = 500;
+		home_position_tick_map_["xarm_4_joint"] = 500;
+		home_position_tick_map_["xarm_5_joint"] = 500;
+		home_position_tick_map_["xarm_6_joint"] = 500;
+
+		// Might be more accurate but is a bit more of a pain to calibrate using 2 points,
+		// and the 0.24 degrees/tick in the documentation seems pretty accurate.
+		// matrix_unit_transform["xarm_2_joint"][0][0]=200;
+		// matrix_unit_transform["xarm_2_joint"][0][1]=980;
+		// matrix_unit_transform["xarm_3_joint"][0][0]=140;
+		// matrix_unit_transform["xarm_3_joint"][0][1]=880;
+		// matrix_unit_transform["xarm_4_joint"][0][0]=130;
+		// matrix_unit_transform["xarm_4_joint"][0][1]=870;
+		// matrix_unit_transform["xarm_5_joint"][0][0]=140;
+		// matrix_unit_transform["xarm_5_joint"][0][1]=880;
+		// matrix_unit_transform["xarm_6_joint"][0][0]=90;
+		// matrix_unit_transform["xarm_6_joint"][0][1]=845;
+
+		// // First column values for -pi/2 and 2nd column pi/2
+		// matrix_unit_rad[0][0] = 100;    //Gripper opened
+		// matrix_unit_rad[0][1] = 800;    //Gripper closed
+		// matrix_unit_rad[1][0] = 200; 	/*  Joint 2 */
+		// matrix_unit_rad[1][1] = 980;  
+   		// matrix_unit_rad[2][0] = 140;	/*  Joint 3*/
+		// matrix_unit_rad[2][1] = 880;   
+   		// matrix_unit_rad[3][0] = 130;	/*  Joint 4 */
+		// matrix_unit_rad[3][1] = 870;   
+		// matrix_unit_rad[4][0] = 140;	/*  Joint 5 */
+		// matrix_unit_rad[4][1] = 880;    
+		// matrix_unit_rad[5][0] = 90; 	/*  Joint 6 */
+		// matrix_unit_rad[5][1] = 845;    
 	}
 
 	xarm::~xarm()
@@ -112,19 +127,29 @@ namespace xarm
 
 	int xarm::convertRadToUnit(std::string joint_name, double rad)
 	{
-		int unit;
-		double m= (matrix_unit_transform[joint_name][0][1]-matrix_unit_transform[joint_name][0][0])/(PI);
-		double b = matrix_unit_transform[joint_name][0][1] - (m*PI/2);
-		unit = (m*rad) + b;
+		// int unit;
+		// double m= (matrix_unit_transform[joint_name][0][1]-matrix_unit_transform[joint_name][0][0])/(PI);
+		// double b = matrix_unit_transform[joint_name][0][1] - (m*PI/2);
+		// unit = (m*rad) + b;
+
+
+		float rad_per_tick = rad_per_tick_map_[joint_name];
+		int home_position_ticks = home_position_tick_map_[joint_name];
+		// "home position" is straight up and down with everything at 0 degrees, which
+		// should be 500 ticks, but we have to compensate for error in the home position.
+		int unit = home_position_ticks + static_cast<int>(rad / rad_per_tick);
 		return unit;
 	}
 
 	double xarm::convertUnitToRad(std::string joint_name, int unit)
 	{
-		double rad;
-		double m= (PI)/(matrix_unit_transform[joint_name][0][1]-matrix_unit_transform[joint_name][0][0]);
-		double b = (PI/2) - (m*matrix_unit_transform[joint_name][0][1]);
-		rad = (m*unit) + b;
+		// double rad;
+		// double m= (PI)/(matrix_unit_transform[joint_name][0][1]-matrix_unit_transform[joint_name][0][0]);
+		// double b = (PI/2) - (m*matrix_unit_transform[joint_name][0][1]);
+		// rad = (m*unit) + b;
+		double rad_per_tick = rad_per_tick_map_[joint_name];
+		int home_position_ticks = home_position_tick_map_[joint_name];
+		double rad = static_cast<double>(unit - home_position_ticks) * rad_per_tick;
 		return rad;
 	}
 	std::vector<double> xarm::readJointsPosition(std::vector<std::string> joint_names)

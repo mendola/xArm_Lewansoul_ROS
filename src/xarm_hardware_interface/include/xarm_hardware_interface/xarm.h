@@ -7,6 +7,7 @@
 
 namespace xarm
 {
+
 	class xarm
 	{
 		public:
@@ -18,12 +19,15 @@ namespace xarm
 			double convertUnitToRad(std::string joint_name, int unit);
 			int convertRadToUnit(std::string joint_name, double rad);
 			void relaxMotors();
+			// bool setCalibration(std::vector<std::string> joint_names, )
 		private:
 			hid_device *handle;
 			struct hid_device_info *devs, *cur_dev; 
 			void printDeviceInformation();
 			int matrix_unit_rad[6][2];
 			std::map<std::string, int> joint_name_map;
+			std::map<std::string, float> rad_per_tick_map_;
+			std::map<std::string, int> home_position_tick_map_;
 			std::map<std::string, int[1][2]> matrix_unit_transform;
 	};
 }
