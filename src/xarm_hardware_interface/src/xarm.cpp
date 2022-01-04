@@ -86,6 +86,7 @@ namespace xarm
 
 	xarm::~xarm()
 	{
+		relaxMotors();
 		hid_close(handle);
 
 		/* Free static HIDAPI objects. */
@@ -208,5 +209,34 @@ namespace xarm
 		}
 
 	} 
+	
+	void xarm::relaxMotors()
+	{	    
+		unsigned char buf[10];
+		int res;
+
+		buf[0] = 0x55;
+		buf[1] = 0x55;
+		buf[2] = 9;
+		buf[3] = 20;  // CMD_MULT_SERVO_UNLOAD
+		buf[4] = 6;  // 6 servos to power off
+		buf[5] = 1;
+		buf[6] = 2;
+		buf[7] = 3;
+		buf[8] = 4;
+		buf[9] = 5;
+		buf[10] = 6;
+		
+		res = hid_write(handle, buf, 17);
+		
+		if (res < 0) {
+			printf("Unable to write()\n");
+			printf("Error: %ls\n", hid_error(handle));
+		} else {
+			printf("Commanded motors to relax\n");
+		}
+
+	} 
+
 	
 }

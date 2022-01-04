@@ -77,7 +77,7 @@ namespace xarm_hardware_interface
         std::vector<double> position_temp;
         position_temp = xarm.readJointsPosition(joint_names_);
         for (int i = 0; i < num_joints_; i++) {
-            //printf ("joint position %d : %f\n", i, position_temp[i]);
+            printf ("joint position %d : %f\n", i, position_temp[i]);
             joint_position_[i]=position_temp[i];
         }
                
