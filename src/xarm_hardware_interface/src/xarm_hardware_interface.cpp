@@ -17,7 +17,7 @@ namespace xarm_hardware_interface
     xarmHardwareInterface::xarmHardwareInterface(ros::NodeHandle& nh) : nh_(nh) {
         init();
         controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
-        nh_.param("/xarm/hardware_interface/loop_hz", loop_hz_, 0.1);
+        nh_.param("/xarm/hardware_interface/loop_hz", loop_hz_,10.0);
         ros::Duration update_freq = ros::Duration(1.0/loop_hz_);
         non_realtime_loop_ = nh_.createTimer(update_freq, &xarmHardwareInterface::update, this);
     }
@@ -66,9 +66,9 @@ namespace xarm_hardware_interface
     void xarmHardwareInterface::update(const ros::TimerEvent& e) {
         elapsed_time_ = ros::Duration(e.current_real - e.last_real);
         read();        
-        // for (int i = 0; i < num_joints_; i++) {
-        //     printf("servo %d in joint_position %f \n",i, joint_position_[i]);
-        // } 
+        for (int i = 0; i < num_joints_; i++) {
+             printf("servo %d in joint_position %f \n",i, joint_position_[i]);
+         } 
         controller_manager_->update(ros::Time::now(), elapsed_time_);
         write(elapsed_time_);
     }
@@ -89,7 +89,7 @@ namespace xarm_hardware_interface
         if (int_elapsed_time > 0){
             for (int i = 0; i < num_joints_; i++) {
                 xarm.setJointPosition(joint_names_[i], joint_position_command_[i], int_elapsed_time);
-                //printf ("joint position command %f\n", joint_position_command_[i]);
+                printf ("joint position command %f\n", joint_position_command_[i]);
             }
         }
     }
