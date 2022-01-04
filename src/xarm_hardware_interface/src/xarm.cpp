@@ -170,9 +170,9 @@ namespace xarm
 		if (bytes_read < kExpectedBytesRead) {
 			printf("Not enough bytes received\n");
 		} else if (buf[2] != 21) {
-			printf("Wrong response msg type %d\n", buf[2]);
+			printf("Wrong response msg length %d\n", buf[2]);
 		} else if (buf[3] != 21) {
-			printf("Payload size incorrect: %d\n", buf[3]);
+			printf("Wrong response msg type: %d\n", buf[3]);
 		} else {
 			int id, p_lsb, p_msb, pos, unit, joint_id;
 			for (int i=0; i<joint_names.size(); ++i){
