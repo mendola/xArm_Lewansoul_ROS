@@ -153,26 +153,39 @@ namespace xarm
 		}
 		
 		res = 0;
+		int bytes_read = 0;
 		while (res == 0) {
 			res = hid_read(handle, buf, sizeof(buf));
-			if (res == 0)
+			if (res == 0) {
 				printf("waiting...\n");
-			if (res < 0)
+			} else if (res < 0) {
 				printf("Unable to read()\n");
-			
+			} else {
+				bytes_read += res;
+			}
 			usleep(500*1000);
-			
 		}
+		
+		const int kExpectedBytesRead = 23;  // Header 0x5555 plus payload of 21
+		if (bytes_read < kExpectedBytesRead) {
+			printf("Not enough bytes received\n");
+		} else if (buf[2] != 21) {
+			printf("Wrong response msg type %d\n", buf[2]);
+		} else if (buf[3] != 21) {
+			printf("Payload size incorrect: %d\n", buf[3]);
+		} else {
+			int id, p_lsb, p_msb, pos, unit, joint_id;
+			for (int i=0; i<joint_names.size(); ++i){
+				// Joint IDs are 1-indexed
+				joint_id = joint_name_map[joint_names[i]];
+				id = buf[2+3*joint_id];
+				p_lsb= buf[2+3*joint_id+1];
+				p_msb= buf[2+3*joint_id+2];
+				unit= (p_msb << 8) + p_lsb;
+				joint_positions[i] = convertUnitToRad(joint_names[i], unit);
+				// printf("servo %d in joint_position %f \n", id, joint_positions[i]);
+			}
 
-		int id, p_lsb, p_msb, pos, unit, joint_id;
-		for (int i=0; i<joint_names.size(); i++){
-			joint_id = joint_name_map[joint_names[i]];
-			id = buf[2+3*joint_id];
-			p_lsb= buf[2+3*joint_id+1];
-			p_msb= buf[2+3*joint_id+2];
-			unit= (p_msb << 8) + p_lsb;
-			joint_positions[i] = convertUnitToRad(joint_names[i], unit);
-			// printf("servo %d in joint_position %f \n", id, joint_positions[i]);
 		}
 
 		return joint_positions;
