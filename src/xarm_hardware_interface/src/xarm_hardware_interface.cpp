@@ -88,8 +88,8 @@ namespace xarm_hardware_interface
         int int_elapsed_time = int(elapsed_time.toSec()*1000);
         if (int_elapsed_time > 0){
             for (int i = 0; i < num_joints_; i++) {
-                xarm.setJointPosition(joint_names_[i], joint_position_command_[i], int_elapsed_time);
-                printf ("joint position command %f\n", joint_position_command_[i]);
+                //xarm.setJointPosition(joint_names_[i], joint_position_command_[i], int_elapsed_time);
+                //printf ("joint position command %f\n", joint_position_command_[i]);
             }
         }
     }

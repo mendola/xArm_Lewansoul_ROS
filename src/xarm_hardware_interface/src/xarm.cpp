@@ -131,7 +131,7 @@ namespace xarm
 	{
 		int res;
 		std::vector<double> joint_positions;
-		unsigned char buf[11];
+		unsigned char buf[63];
 
 		joint_positions.resize(joint_names.size());
 		buf[0] = 0x55;
@@ -142,7 +142,11 @@ namespace xarm
 		for (int i=0; i<joint_positions.size() && i < 11; ++i) {
 			buf[5+i] = joint_name_map[joint_names[i]];
 		}
-
+		//printf("Wrote: [");
+		//for (int i=0; i < 11; ++i) {
+		//	printf("%d ",buf[i]);
+		//}
+		//printf("]\n");
 		res = hid_write(handle, buf, 5 + joint_positions.size());
 		
 		if (res < 0) {
@@ -163,7 +167,13 @@ namespace xarm
 			}
 			usleep(500*1000);
 		}
-		
+
+		//printf("Read: [");
+                //for (int i=0; i < 63; ++i) {
+                //        printf("%d ",buf[i]);
+                //}
+                //printf("]\n");
+
 		const int kExpectedBytesRead = 2 + 3 + 3*joint_positions.size();  // Header 0x5555 plus payload of 21
 		if (bytes_read < kExpectedBytesRead) {
 			printf("Not enough bytes received\n");
@@ -172,16 +182,20 @@ namespace xarm
 		} else if (buf[3] != 21) {
 			printf("Wrong response msg type: %d\n", buf[3]);
 		} else {
-			int id, p_lsb, p_msb, pos, unit, joint_id;
+			int id, p_lsb, p_msb, pos, joint_id;
+			int16_t unit;
 			for (int i=0; i<joint_names.size(); ++i){
 				// Joint IDs are 1-indexed
 				joint_id = joint_name_map[joint_names[i]];
-				id = buf[2+3*joint_id];
-				p_lsb= buf[2+3*joint_id+1];
-				p_msb= buf[2+3*joint_id+2];
+				id = buf[5+3*i];
+				p_lsb= buf[5+3*i + 1];
+				p_msb= buf[5+3*i + 2];
 				unit= (p_msb << 8) + p_lsb;
 				joint_positions[i] = convertUnitToRad(joint_names[i], unit);
-				// printf("servo %d in joint_position %f \n", id, joint_positions[i]);
+				if (joint_id != id) {
+					printf("ERROR: unexpected joint id. Expected %d got %d",joint_id, id);
+				}
+				printf("servo %d in joint_position %d | %f \n", id, unit, joint_positions[i]);
 			}
 
 		}
