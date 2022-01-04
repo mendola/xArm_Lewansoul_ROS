@@ -56,6 +56,7 @@ namespace xarm
   		joint_name_map.insert(std::make_pair("xarm_4_joint" , 3));
 		joint_name_map.insert(std::make_pair("xarm_5_joint" , 4));
 		joint_name_map.insert(std::make_pair("xarm_6_joint" , 2));  
+		joint_name_map.insert(std::make_pair("xarm_1_joint" , 1));  
 		
 		
 		matrix_unit_transform["xarm_2_joint"][0][0]=200;
@@ -68,6 +69,8 @@ namespace xarm
 		matrix_unit_transform["xarm_5_joint"][0][1]=880;
 		matrix_unit_transform["xarm_6_joint"][0][0]=90;
 		matrix_unit_transform["xarm_6_joint"][0][1]=845;
+		matrix_unit_transform["xarm_1_joint"][0][0]=300;
+		matrix_unit_transform["xarm_1_joint"][0][1]=700;
 
 		// First column values for -pi/2 and 2nd column pi/2
 		matrix_unit_rad[0][0] = 100;    //Gripper opened
@@ -131,21 +134,19 @@ namespace xarm
 	{
 		int res;
 		std::vector<double> joint_positions;
-		unsigned char buf[65];
+		unsigned char buf[11];
 
 		joint_positions.resize(joint_names.size());
 		buf[0] = 0x55;
 		buf[1] = 0x55;
-		buf[2] = 9;
+		buf[2] = 3 + joint_positions.size();
 		buf[3] = 21;
-		buf[4] = 6;
-		buf[5] = 1;
-		buf[6] = 2;
-		buf[7] = 3;
-		buf[8] = 4;
-		buf[9] = 5;
-		buf[10] = 6;
-		res = hid_write(handle, buf, 11);
+		buf[4] = joint_positions.size();
+		for (int i=0; i<joint_positions.size() && i < 11; ++i) {
+			buf[5+i] = joint_name_map[joint_names[i]];
+		}
+
+		res = hid_write(handle, buf, 5 + joint_positions.size());
 		
 		if (res < 0) {
 			printf("Unable to write()\n");
@@ -166,10 +167,10 @@ namespace xarm
 			usleep(500*1000);
 		}
 		
-		const int kExpectedBytesRead = 23;  // Header 0x5555 plus payload of 21
+		const int kExpectedBytesRead = 2 + 3 + 3*joint_positions.size();  // Header 0x5555 plus payload of 21
 		if (bytes_read < kExpectedBytesRead) {
 			printf("Not enough bytes received\n");
-		} else if (buf[2] != 21) {
+		} else if (buf[2] != kExpectedBytesRead - 2) {
 			printf("Wrong response msg length %d\n", buf[2]);
 		} else if (buf[3] != 21) {
 			printf("Wrong response msg type: %d\n", buf[3]);
