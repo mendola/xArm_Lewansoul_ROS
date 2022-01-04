@@ -145,7 +145,7 @@ namespace xarm
 		buf[8] = 4;
 		buf[9] = 5;
 		buf[10] = 6;
-		res = hid_write(handle, buf, 17);
+		res = hid_write(handle, buf, 11);
 		
 		if (res < 0) {
 			printf("Unable to write()\n");
